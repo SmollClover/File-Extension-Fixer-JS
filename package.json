@@ -1,0 +1,20 @@
+{
+	"name": "file-extension-fixer",
+	"module": "src/index.ts",
+	"scripts": {
+		"check": "biome check . --apply",
+		"build": "tsc && bun build.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.7.0",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"type": "module",
+	"dependencies": {
+		"file-type": "^19.0.0"
+	},
+	"trustedDependencies": ["@biomejs/biome"]
+}
