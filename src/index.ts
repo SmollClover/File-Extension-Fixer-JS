@@ -61,4 +61,4 @@ for (const file of files) {
 	changed++;
 }
 
-console.log(`\nChanged: ${formatNumber(changed)}\nFailed: ${formatNumber(failed)}`);
+console.log(`\nChanged : ${formatNumber(changed)}\nFailed  : ${formatNumber(failed)}`);
