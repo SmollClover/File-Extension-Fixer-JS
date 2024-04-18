@@ -8,6 +8,10 @@ function getFileName(file: string) {
 	return file.split('/').pop();
 }
 
+function formatNumber(num: number) {
+	return new Intl.NumberFormat('de-DE').format(num);
+}
+
 let directory = '.';
 if (process.argv.length > 2) directory = process.argv[2];
 
@@ -16,7 +20,7 @@ const files = (await readdir(directory, { withFileTypes: true }))
 	.map((file) => join(directory, file.name))
 	.filter((file) => !file.split('/').pop()?.startsWith('.'));
 
-console.log(`Reading directory ${directory} : ${files.length} files\n`);
+console.log(`Reading directory ${directory} : ${formatNumber(files.length)} files\n`);
 
 let changed = 0;
 let failed = 0;
@@ -57,4 +61,4 @@ for (const file of files) {
 	changed++;
 }
 
-console.log(`\nChanged: ${changed}\nFailed: ${failed}`);
+console.log(`\nChanged: ${formatNumber(changed)}\nFailed: ${formatNumber(failed)}`);
