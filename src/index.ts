@@ -2,6 +2,7 @@
 
 import { readdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
+import { MultiBar, Presets } from 'cli-progress';
 import { fileTypeFromBuffer } from 'file-type';
 
 function getFileName(file: string) {
@@ -11,6 +12,14 @@ function getFileName(file: string) {
 function formatNumber(num: number) {
 	return new Intl.NumberFormat('de-DE').format(num);
 }
+
+const multibar = new MultiBar(
+	{
+		clearOnComplete: false,
+		format: '{bar} {percentage}% | {value}/{total}',
+	},
+	Presets.shades_grey,
+);
 
 let directory = '.';
 if (process.argv.length > 2) directory = process.argv[2];
@@ -22,15 +31,20 @@ const files = (await readdir(directory, { withFileTypes: true }))
 
 console.log(`Reading directory ${directory} : ${formatNumber(files.length)} files\n`);
 
+const progress = multibar.create(files.length, 0);
+
 let changed = 0;
 let failed = 0;
 
 for (const file of files) {
+	progress.increment();
+
 	const buffer = await Bun.file(file).arrayBuffer();
 	const fileType = await fileTypeFromBuffer(buffer);
 
 	if (!fileType) {
-		console.log(`${'?'.repeat(12)} │ ${getFileName(file)} -> Unable to detect`);
+		multibar.log(`${'?'.repeat(12)} │ ${getFileName(file)} -> Unable to detect\n`);
+		multibar.update();
 		failed++;
 
 		continue;
@@ -41,7 +55,8 @@ for (const file of files) {
 	if (!file.includes('.')) {
 		const newFile = `${file}.${fileType.ext}`;
 
-		console.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}`);
+		multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
+		multibar.update();
 		rename(file, newFile);
 		changed++;
 
@@ -56,9 +71,12 @@ for (const file of files) {
 	splitFile.push(fileType.ext);
 	const newFile = splitFile.join('.');
 
-	console.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}`);
+	multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
+	multibar.update();
 	rename(file, newFile);
 	changed++;
 }
+
+multibar.stop();
 
 console.log(`\nChanged : ${formatNumber(changed)}\nFailed  : ${formatNumber(failed)}`);

@@ -7,13 +7,15 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.7.0",
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"@types/cli-progress": "^3.11.5"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
 	},
 	"type": "module",
 	"dependencies": {
+		"cli-progress": "^3.12.0",
 		"file-type": "^19.0.0"
 	},
 	"trustedDependencies": ["@biomejs/biome"]
