@@ -37,8 +37,6 @@ let changed = 0;
 let failed = 0;
 
 for (const file of files) {
-	progress.increment();
-
 	const buffer = await Bun.file(file).arrayBuffer();
 	const fileType = await fileTypeFromBuffer(buffer);
 
@@ -47,6 +45,7 @@ for (const file of files) {
 		multibar.update();
 		failed++;
 
+		progress.increment();
 		continue;
 	}
 
@@ -60,11 +59,15 @@ for (const file of files) {
 		rename(file, newFile);
 		changed++;
 
+		progress.increment();
 		continue;
 	}
 
 	const currentExtension = file.split('.').pop();
-	if (currentExtension === fileType.ext) continue;
+	if (currentExtension === fileType.ext) {
+		progress.increment();
+		continue;
+	}
 
 	const splitFile = file.split('.');
 	splitFile.pop();
@@ -75,6 +78,7 @@ for (const file of files) {
 	multibar.update();
 	rename(file, newFile);
 	changed++;
+	progress.increment();
 }
 
 multibar.stop();
