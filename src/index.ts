@@ -29,14 +29,36 @@ const files = (await readdir(directory, { withFileTypes: true }))
 	.map((file) => join(directory, file.name))
 	.filter((file) => !file.split('/').pop()?.startsWith('.'));
 
+const cacheFile = Bun.file(join(directory, '.fixFileExt.cache'));
+let oldCache: string[] = [];
+const newCache: string[] = [];
+
+if (await cacheFile.exists()) {
+	try {
+		oldCache = await cacheFile.json();
+	} catch (e) {
+		console.error(e);
+	}
+}
+
 console.log(`Reading directory ${directory} : ${formatNumber(files.length)} files\n`);
 
 const progress = multibar.create(files.length, 0);
 
 let changed = 0;
 let failed = 0;
+let skipped = 0;
+let cached = 0;
 
 for (const file of files) {
+	if (oldCache.includes(file)) {
+		newCache.push(file);
+		cached++;
+
+		progress.increment();
+		continue;
+	}
+
 	const buffer = await Bun.file(file).arrayBuffer();
 	const fileType = await fileTypeFromBuffer(buffer);
 
@@ -49,7 +71,13 @@ for (const file of files) {
 		continue;
 	}
 
-	if (!fileType.mime.startsWith('image') && !fileType.mime.startsWith('video')) continue;
+	if (!fileType.mime.startsWith('image') && !fileType.mime.startsWith('video')) {
+		newCache.push(file);
+		skipped++;
+
+		progress.increment();
+		continue;
+	}
 
 	if (!file.includes('.')) {
 		const newFile = `${file}.${fileType.ext}`;
@@ -57,6 +85,8 @@ for (const file of files) {
 		multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
 		multibar.update();
 		rename(file, newFile);
+
+		newCache.push(newFile);
 		changed++;
 
 		progress.increment();
@@ -65,6 +95,8 @@ for (const file of files) {
 
 	const currentExtension = file.split('.').pop();
 	if (currentExtension === fileType.ext) {
+		newCache.push(file);
+
 		progress.increment();
 		continue;
 	}
@@ -77,10 +109,19 @@ for (const file of files) {
 	multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
 	multibar.update();
 	rename(file, newFile);
+
+	newCache.push(newFile);
 	changed++;
+
 	progress.increment();
 }
 
 multibar.stop();
 
-console.log(`\nChanged : ${formatNumber(changed)}\nFailed  : ${formatNumber(failed)}`);
+Bun.write(cacheFile, JSON.stringify(newCache));
+
+console.log(
+	`\nChanged : ${formatNumber(changed)}\nSkipped : ${formatNumber(skipped)}\nCached  : ${formatNumber(
+		cached,
+	)}\nFailed  : ${formatNumber(failed)}`,
+);
