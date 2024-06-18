@@ -2,11 +2,12 @@
 	"name": "file-extension-fixer",
 	"module": "src/index.ts",
 	"scripts": {
-		"check": "biome check . --apply",
+		"check": "biome check .",
+		"fix": "biome check . --write",
 		"build": "tsc && bun build.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.7.3",
+		"@biomejs/biome": "1.8.1",
 		"@types/bun": "latest",
 		"@types/cli-progress": "^3.11.5"
 	},
