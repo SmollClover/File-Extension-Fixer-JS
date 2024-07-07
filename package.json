@@ -1,21 +1,21 @@
 {
-	"name": "file-extension-fixer",
-	"module": "src/index.ts",
-	"type": "module",
-	"scripts": {
-		"check": "biome check .",
-		"fix": "biome check . --write",
-		"build": "tsc && bun build.ts"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "1.8.3",
-		"@types/bun": "1.1.6",
-		"@types/cli-progress": "^3.11.6",
-		"typescript": "^5.5.3"
-	},
-	"dependencies": {
-		"cli-progress": "^3.12.0",
-		"file-type": "^19.0.0"
-	},
-	"trustedDependencies": ["@biomejs/biome"]
+    "name": "file-extension-fixer",
+    "module": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "check": "biome check .",
+        "fix": "biome check . --write",
+        "build": "tsc && bun build.ts"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.8.3",
+        "@types/bun": "1.1.6",
+        "@types/cli-progress": "^3.11.6",
+        "typescript": "^5.5.3"
+    },
+    "dependencies": {
+        "cli-progress": "^3.12.0",
+        "file-type": "^19.0.0"
+    },
+    "trustedDependencies": ["@biomejs/biome"]
 }
