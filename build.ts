@@ -4,9 +4,8 @@ console.log(
 			entrypoints: ['src/index.ts'],
 			outdir: './out',
 			minify: true,
-			splitting: false,
 			target: 'bun',
-			sourcemap: 'none',
+			sourcemap: 'inline',
 			naming: 'fixFileExt.js',
 		})
 	).logs.join('\n'),
