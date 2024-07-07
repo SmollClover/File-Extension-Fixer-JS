@@ -16,7 +16,7 @@ File Extension Fixer produces a cache file called `.fixFileExt.sqlite` in the di
 
 ```bash
 bun i
-bun run build.ts
+bun run build
 ```
 
 ### Executing Project
