@@ -4,6 +4,7 @@ import { readdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileTypeFromBuffer } from 'file-type';
 import { Bar } from './bar';
+import { DB } from './db';
 import { formatNumber } from './functions';
 
 let directory = '.';
@@ -14,20 +15,9 @@ const files = (await readdir(directory, { withFileTypes: true }))
 	.map((file) => join(directory, file.name))
 	.filter((file) => !file.split('/').pop()?.startsWith('.'));
 
-const cacheFile = Bun.file(join(directory, '.fixFileExt.cache'));
-let oldCache: string[] = [];
-const newCache: string[] = [];
-
-if (await cacheFile.exists()) {
-	try {
-		oldCache = await cacheFile.json();
-	} catch (e) {
-		console.error(e);
-	}
-}
-
 console.log(`Reading directory ${directory} : ${formatNumber(files.length)} files\n`);
 
+using db = new DB(directory);
 const bar = new Bar(files.length);
 
 let changed = 0;
@@ -36,11 +26,10 @@ let skipped = 0;
 let cached = 0;
 
 for (const file of files) {
-	if (oldCache.includes(file)) {
-		newCache.push(file);
+	if (db.includes(file)) {
 		cached++;
 
-		bar.skipped();
+		bar.skip();
 		continue;
 	}
 
@@ -55,10 +44,10 @@ for (const file of files) {
 	}
 
 	if (!fileType.mime.startsWith('image') && !fileType.mime.startsWith('video')) {
-		newCache.push(file);
+		db.add(file);
 		skipped++;
 
-		bar.skipped();
+		bar.skip();
 		continue;
 	}
 
@@ -66,7 +55,7 @@ for (const file of files) {
 		const newFile = `${file}.${fileType.ext}`;
 		rename(file, newFile);
 
-		newCache.push(newFile);
+		db.add(newFile);
 		changed++;
 
 		bar.changedFileExt(fileType, file, newFile);
@@ -75,9 +64,9 @@ for (const file of files) {
 
 	const currentExtension = file.split('.').pop();
 	if (currentExtension === fileType.ext) {
-		newCache.push(file);
+		db.add(file);
 
-		bar.skipped();
+		bar.skip();
 		continue;
 	}
 
@@ -88,15 +77,13 @@ for (const file of files) {
 	const newFile = splitFile.join('.');
 	rename(file, newFile);
 
-	newCache.push(newFile);
+	db.add(newFile);
 	changed++;
 
 	bar.changedFileExt(fileType, file, newFile);
 }
 
 bar.stop();
-
-Bun.write(cacheFile, JSON.stringify(newCache));
 
 console.log(
 	`\nChanged : ${formatNumber(changed)}\nSkipped : ${formatNumber(skipped)}\nCached  : ${formatNumber(

@@ -22,7 +22,7 @@ export class Bar {
 		this.multibar.stop();
 	}
 
-	public skipped() {
+	public skip() {
 		this.progress.increment();
 	}
 
