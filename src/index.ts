@@ -2,24 +2,9 @@
 
 import { readdir, rename } from 'node:fs/promises';
 import { join } from 'node:path';
-import { MultiBar, Presets } from 'cli-progress';
 import { fileTypeFromBuffer } from 'file-type';
-
-function getFileName(file: string) {
-	return file.split('/').pop();
-}
-
-function formatNumber(num: number) {
-	return new Intl.NumberFormat('de-DE').format(num);
-}
-
-const multibar = new MultiBar(
-	{
-		clearOnComplete: false,
-		format: '{bar} {percentage}% | {value}/{total}',
-	},
-	Presets.shades_grey,
-);
+import { Bar } from './bar';
+import { formatNumber } from './functions';
 
 let directory = '.';
 if (process.argv.length > 2) directory = process.argv[2];
@@ -43,7 +28,7 @@ if (await cacheFile.exists()) {
 
 console.log(`Reading directory ${directory} : ${formatNumber(files.length)} files\n`);
 
-const progress = multibar.create(files.length, 0);
+const bar = new Bar(files.length);
 
 let changed = 0;
 let failed = 0;
@@ -55,7 +40,7 @@ for (const file of files) {
 		newCache.push(file);
 		cached++;
 
-		progress.increment();
+		bar.skipped();
 		continue;
 	}
 
@@ -63,11 +48,9 @@ for (const file of files) {
 	const fileType = await fileTypeFromBuffer(buffer);
 
 	if (!fileType) {
-		multibar.log(`${'?'.repeat(12)} │ ${getFileName(file)} -> Unable to detect\n`);
-		multibar.update();
 		failed++;
 
-		progress.increment();
+		bar.unableToDetect(file);
 		continue;
 	}
 
@@ -75,21 +58,18 @@ for (const file of files) {
 		newCache.push(file);
 		skipped++;
 
-		progress.increment();
+		bar.skipped();
 		continue;
 	}
 
 	if (!file.includes('.')) {
 		const newFile = `${file}.${fileType.ext}`;
-
-		multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
-		multibar.update();
 		rename(file, newFile);
 
 		newCache.push(newFile);
 		changed++;
 
-		progress.increment();
+		bar.changedFileExt(fileType, file, newFile);
 		continue;
 	}
 
@@ -97,26 +77,24 @@ for (const file of files) {
 	if (currentExtension === fileType.ext) {
 		newCache.push(file);
 
-		progress.increment();
+		bar.skipped();
 		continue;
 	}
 
 	const splitFile = file.split('.');
 	splitFile.pop();
 	splitFile.push(fileType.ext);
-	const newFile = splitFile.join('.');
 
-	multibar.log(`${fileType.mime.padEnd(12)} │ ${getFileName(file)} -> ${getFileName(newFile)}\n`);
-	multibar.update();
+	const newFile = splitFile.join('.');
 	rename(file, newFile);
 
 	newCache.push(newFile);
 	changed++;
 
-	progress.increment();
+	bar.changedFileExt(fileType, file, newFile);
 }
 
-multibar.stop();
+bar.stop();
 
 Bun.write(cacheFile, JSON.stringify(newCache));
 
