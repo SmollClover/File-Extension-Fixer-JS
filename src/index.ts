@@ -1,11 +1,11 @@
 #!/usr/bin/env bun
 
-import { readdir, rename } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileTypeFromBuffer } from 'file-type';
 import { Bar } from './bar';
 import { DB } from './db';
-import { formatNumber } from './functions';
+import { formatNumber, rename } from './functions';
 
 let directory = '.';
 if (process.argv.length > 2) directory = process.argv[2];
