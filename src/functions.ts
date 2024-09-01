@@ -8,19 +8,20 @@ export function formatNumber(num: number) {
     return new Intl.NumberFormat('de-DE').format(num);
 }
 
-export async function rename(oldPath: string, wantedPath: string) {
-    const originalPath = wantedPath;
-    let newPath = originalPath;
+export async function rename(oldName: string, wantedName: string) {
+    const originalName = wantedName;
+    let newName = originalName;
 
     let i = 0;
-    while (await Bun.file(newPath).exists()) {
-        const split = originalPath.split('.');
+    while (await Bun.file(newName).exists()) {
+        const split = originalName.split('.');
         const extension = split[split.length - 1];
-        const prefix = originalPath.substring(0, originalPath.length - extension.length - 1);
+        const prefix = originalName.substring(0, originalName.length - extension.length - 1);
 
-        newPath = `${prefix} (${i}).${extension}`;
+        newName = `${prefix} (${i}).${extension}`;
         i++;
     }
 
-    return unsafeRename(oldPath, newPath);
+    await unsafeRename(oldName, newName);
+    return newName;
 }

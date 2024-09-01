@@ -52,8 +52,8 @@ for (const file of files) {
     }
 
     if (!file.includes('.')) {
-        const newFile = `${file}.${fileType.ext}`;
-        rename(file, newFile);
+        let newFile = `${file}.${fileType.ext}`;
+        newFile = await rename(file, newFile);
 
         db.add(newFile);
         changed++;
@@ -74,8 +74,8 @@ for (const file of files) {
     splitFile.pop();
     splitFile.push(fileType.ext);
 
-    const newFile = splitFile.join('.');
-    rename(file, newFile);
+    let newFile = splitFile.join('.');
+    newFile = await rename(file, newFile);
 
     db.add(newFile);
     changed++;
