@@ -8,10 +8,10 @@
         "build": "tsc && bun build.ts"
     },
     "devDependencies": {
-        "@biomejs/biome": "1.9.2",
-        "@types/bun": "1.1.10",
+        "@biomejs/biome": "1.9.3",
+        "@types/bun": "1.1.11",
         "@types/cli-progress": "^3.11.6",
-        "typescript": "^5.6.2"
+        "typescript": "^5.6.3"
     },
     "dependencies": {
         "cli-progress": "^3.12.0",
