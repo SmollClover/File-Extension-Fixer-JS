@@ -9,9 +9,9 @@
     },
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
-        "@types/bun": "1.1.13",
+        "@types/bun": "1.1.14",
         "@types/cli-progress": "^3.11.6",
-        "typescript": "^5.6.3"
+        "typescript": "^5.7.2"
     },
     "dependencies": {
         "cli-progress": "^3.12.0",
