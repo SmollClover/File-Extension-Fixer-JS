@@ -2,6 +2,8 @@
 
 A tool that looks over every photo and video in a directory and corrects the file extension based off of the magic number of the file.
 
+This is the Javascript equivalent of [File Extension Fixer Rust](https://github.com/SmollClover/File-Extension-Fixer-Rust).
+
 ---
 
 ## Cache
