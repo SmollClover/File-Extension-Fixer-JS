@@ -1,11 +1,9 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.4.6/schema.json",
     "files": {
-        "ignore": ["out/**/*", "test_files/**/*"]
+        "includes": ["**", "!**/out/**/*", "!**/test_files/**/*"]
     },
-    "organizeImports": {
-        "enabled": true
-    },
+    "assist": { "actions": { "source": { "organizeImports": "on" } } },
     "linter": {
         "enabled": true,
         "rules": {
